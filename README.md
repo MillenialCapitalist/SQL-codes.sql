@@ -842,3 +842,48 @@ SELECT id, account_id, occurred_at, ROW_NUMBER() OVER (PARTITION BY account_id O
 SELECT id, account_id, occurred_at, ROW_NUMBER() OVER (PARTITION BY account_id ORDER BY DATE_TRUNC('month', occurred_at)) AS row_num
   FROM orders
   FROM orders
+
+SELECT id, account_id, occurred_at,
+      ROW_NUMBER() OVER (ORDER BY occurred_at) AS row_num
+  FROM orders
+
+SELECT id, account_id, occurred_at,
+      RANK() OVER (PARTITION BY account_id ORDER BY occurred_at) AS row_num
+  FROM orders
+
+SELECT id, account_id, occurred_at,
+      RANK() OVER (PARTITION BY account_id ORDER BY occurred_at) AS row_num
+  FROM orders
+
+SELECT id, account_id, DATE_TRUNC('month', occurred_at) AS month,
+      RANK() OVER (PARTITION BY account_id ORDER BY DATE_TRUNC('month', occurred_at)) AS row_num
+  FROM orders
+
+SELECT id, account_id, DATE_TRUNC('month', occurred_at) AS month,
+      DENSE_RANK() OVER (PARTITION BY account_id ORDER BY DATE_TRUNC('month', occurred_at)) AS row_num
+  FROM orders
+
+SELECT id, account_id, total,
+  		RANK() OVER (PARTITION BY account_id ORDER BY total DESC) AS total_rank
+  FROM orders
+
+SELECT id, account_id, standard_qty,
+      DATE_TRUNC('month', occurred_at) AS month,
+      DENSE_RANK() OVER (PARTITION BY account_id ORDER BY DATE_TRUNC('month', occurred_at)) AS dense_rank,
+      SUM(standard_qty) OVER (PARTITION BY account_id ORDER BY DATE_TRUNC('month', occurred_at)) AS sum_standard_qty,
+      COUNT(standard_qty) OVER (PARTITION BY account_id ORDER BY DATE_TRUNC('month', occurred_at)) AS count_standard_qty,
+      AVG(standard_qty) OVER (PARTITION BY account_id ORDER BY DATE_TRUNC('month', occurred_at)) AS avg_standard_qty,
+      MIN(standard_qty) OVER (PARTITION BY account_id ORDER BY DATE_TRUNC('month', occurred_at)) AS min_standard_qty,
+      MAX(standard_qty) OVER (PARTITION BY account_id ORDER BY DATE_TRUNC('month', occurred_at)) AS max_standard_qty
+  FROM orders
+
+SELECT id, account_id, standard_qty,
+        DATE_TRUNC('month', occurred_at) AS month,
+        DENSE_RANK() OVER main_window AS dense_rank,
+        SUM(standard_qty) OVER main_window AS sum_standard_qty,
+        COUNT(standard_qty) OVER main_window AS count_standard_qty,
+        AVG(standard_qty) OVER main_window AS avg_standard_qty,
+        MIN(standard_qty) OVER main_window AS min_standard_qty,
+        MAX(standard_qty) OVER main_window AS max_standard_qty
+  FROM orders
+  WINDOW main_window AS (PARTITION BY account_id ORDER BY DATE_TRUNC('month', occurred_at))
