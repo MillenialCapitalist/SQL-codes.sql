@@ -900,3 +900,5 @@ SELECT id,
        MAX(total_amt_usd) OVER account_year_window AS max_total_amt_usd
 FROM orders
 WINDOW account_year_window AS (PARTITION BY account_id ORDER BY DATE_TRUNC('year',occurred_at))
+
+
