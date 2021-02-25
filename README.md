@@ -901,4 +901,25 @@ SELECT id,
 FROM orders
 WINDOW account_year_window AS (PARTITION BY account_id ORDER BY DATE_TRUNC('year',occurred_at))
 
+SELECT id, account_id, occurred_at, standard_qty,
+      NTILE(4) OVER (ORDER BY standard_qty) AS quartile,
+      NTILE(5) OVER (ORDER BY standard_qty) AS quintile,
+      NTILE(100) OVER (ORDER BY standard_amt_usd) AS percentile
+  FROM orders
+  ORDER BY standard_qty DESC
+
+SELECT account_id, occurred_at, standard_qty,
+      NTILE(4) OVER (PARTITION BY account_id ORDER BY standard_qty) AS quartile
+  FROM orders
+  ORDER BY account_id
+
+SELECT account_id, occurred_at, gloss_qty,
+      NTILE(2) OVER (PARTITION BY account_id ORDER BY gloss_qty) AS gloss_half
+  FROM orders
+  ORDER BY account_id;
+
+SELECT account_id, occurred_at, total_amt_usd,
+      NTILE(100) OVER (PARTITION BY account_id ORDER BY total_amt_usd) AS total_percentile
+  FROM orders
+  ORDER BY account_id
 
